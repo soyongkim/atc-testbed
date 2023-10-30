@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>ATC Network Analyzer</title>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/6.0.3/adapter.min.js" ></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.7.2/jquery.min.js" ></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.70/jquery.blockUI.min.js" ></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.2/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.1.0/bootbox.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/cerulean/bootstrap.min.css" type="text/css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css" type="text/css"/>
+</head>
+<body>
+
+<nav class="navbar navbar-default navbar-static-top">
+</nav>
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="page-header">
+				<h1>ATC Network Analyzer - Dashboard</h1>
+			</div>
+			<div class="container" id="details">
+				<h2>Usecase1 : Multimedia(WebRTC)</h2>
+			</div>
+			<div class="container " id="room">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">User <span class="label label-info hide" id="user1"></span></h3>
+							</div>
+							<div class="panel-body relative" id="userresult1">
+								<div class="col-md-4">
+									<p>Recent latency: <span id="recent_ping_time1"></span>ms</p>
+									<p>Average latency: <span id="average_ping_time1"></span>ms</p>
+									<p>Packet loss: <span id="packet_loss1"></span>%</p>
+									<p>Throughput: <span id="network_throughput1"></span></p>
+									<canvas id="meter" width=150 height=150 style="position:absolute; top: 15px; right: 15px">
+								</div>
+								<div class="col-md-8">
+									<canvas id="myChart1"></canvas>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title">User <span class="label label-info hide" id="user2"></span></h3>
+							</div>
+							<div class="panel-body relative" id="userresult2">
+								<div class="col-md-4">
+									<p>Recent latency: <span id="recent_ping_time2"></span>ms</p>
+									<p>Average latency: <span id="average_ping_time2"></span>ms</p>
+									<p>Packet loss: <span id="packet_loss2"></span>%</p>
+									<p>Throughput: <span id="network_throughput2"></span></p>
+									<canvas id="meter" width=150 height=150 style="position:absolute; top: 15px; right: 15px">
+								</div>
+								<div class="col-md-8">
+									<canvas id="myChart2"></canvas>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container" id="details">
+				<h2>Usecase1 : IoT Case</h2>
+			</div>
+			<div class="row">
+				<div class="col-md-4">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">User <span class="label label-info hide" id="user2"></span></h3>
+						</div>
+						<div class="panel-body relative" id="userresult2">
+							<div class="col-md-4">
+								<p>Recent latency: <span id="recent_ping_time2"></span>ms</p>
+								<p>Average latency: <span id="average_ping_time2"></span>ms</p>
+								<p>Throughput: <span id="network_throughput2"></span></p>
+								<canvas id="meter" width=150 height=150 style="position:absolute; top: 15px; right: 15px">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- <button type="button" id="start">Start</button> -->
+	<hr>
+
+	<div class="footer">
+	</div>
+</div>
+<script>
+	var ctx = [];
+	var config = [];
+	var myChart = [];
+
+	// init charts
+	for (var i = 0; i < 2; i++) {
+		ctx[i] = document.getElementById('myChart' + (i+1));
+		config[i] = {
+			type: 'line',
+			id: "",
+			data: {
+				labels: [ // Date Objects
+					'data1',
+					'data2',
+					'data3',
+					'data4',
+					'data5',
+				],
+				datasets: [
+					{
+						borderColor: 'rgba(0,0,0,1)',
+						backgroundColor: 'rgba(0,0,0,1)',
+						data: [ 0, 0, 0, 0, 0 ],
+						fill: false,
+						datalabels: {
+							color: 'black',
+							align: 'top'
+						}
+					}
+				]
+			},
+			options: {
+				maintainAspectRatio: false,
+				title: {
+					text: 'Time Scale'
+				},
+				scales: {
+					yAxes: [{
+						scaleLabel: {
+							display: true,
+							labelString: 'Throughput'
+						},
+						// ticks: {
+						// 	max: 1000,
+						// 	min: 0
+						// }
+					}]
+				},
+				legend: {
+					display: false
+				},
+				animaion: false
+			}
+		};
+		myChart[i] = new Chart(ctx[i], config[i]);
+	}
+
+	// update charts
+    var webRTCdata;
+	setInterval(function () {
+			// console.log("Send bitrate with id");
+			fetch("https://" + window.location.hostname + ":50000/webrtcdata")
+				.then((res) => res.json())
+				.then((data) => {
+					console.log(data);
+					webRTCdata = data.dataset;
+					if(webRTCdata.length == 0) {
+						for(var i=0; i<2; i++) {
+							$('#user' + (i + 1)).empty().hide();
+							$('#average_ping_time' + (i + 1)).html(0);
+							$('#recent_ping_time' + (i + 1)).html(0);
+							$('#packet_loss' + (i + 1)).html(0);
+							$('#network_throughput' + (i + 1)).html(0);
+							config[i].id = "";
+							for (var k = 0; k < 5; k++) {
+								//console.log(config[i].data.datasets[0].data);
+								config[i].data.datasets[0].data.splice(0, 1);
+								config[i].data.datasets[0].data.push(0);
+							}
+						}
+					} else {
+						var p = 0;
+						for (var i = 0; i < 2; i++) {
+							for (var j = p; j < 2; j++) {
+								if (config[i].id == "" || config[i].id == webRTCdata[j].id) {
+									config[i].id = webRTCdata[j].id;
+									$('#user' + (i + 1)).removeClass('hide').html(webRTCdata[j].name).show();
+									for (var k = 0; k < 5; k++) {
+										$('#average_ping_time' + (i + 1)).html(webRTCdata[j].data[k].alaten);
+										$('#recent_ping_time' + (i + 1)).html(webRTCdata[j].data[k].rlaten);
+										$('#packet_loss' + (i + 1)).html(webRTCdata[j].data[k].loss);
+										$('#network_throughput' + (i + 1)).html(webRTCdata[j].data[k].bit + "kbps");
+										config[i].data.datasets[0].data.splice(0, 1);
+										config[i].data.datasets[0].data.push(webRTCdata[j].data[k].bit);
+									}
+									p++;
+									break;
+								}
+							}
+						}
+					}
+					for (var i = 0; i < 2; i++) {
+						myChart[i].update();
+					}
+				})
+				.catch((error) => console.log(error));
+		}, 1500);
+
+	// document.getElementById('start').onclick = function(){
+	// 	const target = document.getElementById('start');
+	// 	target.disabled = true;
+	// }
+	
+	// //데이터 추가
+	// document.getElementById('addData').onclick = function(){
+		
+	// 	//라벨추가
+	// 	config.data.labels.push('data'+config.data.labels.length)
+		
+	// 	//데이터셋 수 만큼 반복
+	// 	var dataset = config.data.datasets;
+	// 	for(var i=0; i<dataset.length; i++){
+	// 		//데이터셋의 데이터 추가
+	// 		dataset[i].data.push(Math.floor(Math.random() * 50));
+	// 	}
+	// 	myChart.update();	//차트 업데이트
+	// }
+	
+	// //데이터셋 추가
+	// document.getElementById('addDataSet').onclick = function(){
+	// 	var color1 = Math.floor(Math.random() * 256);
+	// 	var color2 = Math.floor(Math.random() * 256);
+	// 	var color3 = Math.floor(Math.random() * 256);
+		
+	// 	console.log(color1 + " " + color2 + " " + color3)
+		
+	// 	var newDataset = {
+	// 		label: 'new Dataset'+config.data.datasets.length,
+	// 		borderColor : 'rgba('+color1+', '+color2+', '+color3+', 1)',
+	// 		backgroundColor : 'rgba('+color1+', '+color2+', '+color3+', 1)',
+	// 		data: [],
+	// 		fill: false
+	// 	}
+		
+	// 	// newDataset에 데이터 삽입
+	// 	for (var i=0; i< config.data.labels.length; i++){
+	// 		var num = Math.floor(Math.random() * 50);
+	// 		newDataset.data.push(num);
+	// 	}
+		
+	// 	// chart에 newDataset 푸쉬
+	// 	config.data.datasets.push(newDataset);
+		
+	// 	myChart.update();	//차트 업데이트
+	// }
+	
+	// //데이터 삭제
+	// document.getElementById('delData').onclick = function(){
+		
+	// 	config.data.labels.splice(-1,1);//라벨 삭제
+		
+	// 	//데이터 삭제
+	// 	config.data.datasets.forEach(function(dataset) {
+	// 		dataset.data.pop();
+	// 	});
+		
+	// 	myChart.update();	//차트 업데이트
+	// }
+	
+	// //데이터셋 삭제
+	// document.getElementById('delDataset').onclick = function(){
+	// 	config.data.datasets.splice(-1,1);
+	// 	myChart.update();	//차트 업데이트
+	// }
+	
+  </script>
+</body>
+</html>
